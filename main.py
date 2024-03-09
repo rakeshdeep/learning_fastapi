@@ -18,7 +18,7 @@ class User(Base): #Model
 Base.metadata.create_all(bind = Engine)
 
 class userSchema(BaseModel): #Schema 
-    name:str
+    name: str
     email:str
     class config:
         orm_model = True
@@ -26,6 +26,9 @@ class userSchema(BaseModel): #Schema
 class userCreateSchema(userSchema):
     password:str
     
+class showSchema(userSchema):
+    id:int
+
 
 
 def get_db():
@@ -43,28 +46,27 @@ async def send_user(users:userCreateSchema, db:Session = Depends(get_db)):
     db.commit()
     return "done"
 # create decorative for GET
-@app.get("/user", description="getting user data", response_model=list[userSchema])
+@app.get("/user", description="getting user data", response_model=list[showSchema])
 async def get_user(db:Session = Depends(get_db)):
     return db.query(User).all()
 
 
 
-# @app.put("/users/{user_id}", response_model=userSchema)
-# def update_user(user_id:int, user: userSchema, db:Session = Depends(get_db)):
+@app.put("/users/{user_id}", response_model=userSchema)
+def update_user(user_id:int, user: userSchema, db:Session = Depends(get_db)):
 
-#     try:
-#         u=db.query(User).filter(User.id == user_id).first()
-#         if u:
-#             u.name = user.name
-#             u.email = user.email
-#             db.add(u)
-#             db.commit()
-#             return u
-#         else:
-#             raise HTTPException(status_code=404, detail="User not found")
+    try:
+        u=db.query(User).filter(User.id == user_id).first()
+        if u:
+            setattr(u, "name", user.name)
+            setattr(u, "email", user.email)
+            db.commit()
+            return {"Your data is updated succcessfully"}
+        else:
+            raise HTTPException(status_code=404, detail="User not found")
 
-#     except Exception as e:
-#         return HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
 
 
 
