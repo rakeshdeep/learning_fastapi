@@ -52,15 +52,20 @@ async def get_user(db:Session = Depends(get_db)):
 
 
 
-@app.put("/users/{user_id}", response_model=userSchema)
+@app.put("/users/{user_id}")
 def update_user(user_id:int, user: userSchema, db:Session = Depends(get_db)):
 
     try:
         u=db.query(User).filter(User.id == user_id).first()
         if u:
-            setattr(u, "name", user.name)
-            setattr(u, "email", user.email)
-            db.commit()
+            if user.name:
+                if user.name != "string":
+                    u.name = user.name
+            if user.email:
+                if user.email !="string":
+                    u.email = user.email
+            db.add(u)
+            db.commit() 
             return {"Your data is updated succcessfully"}
         else:
             raise HTTPException(status_code=404, detail="User not found")

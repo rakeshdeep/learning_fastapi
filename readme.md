@@ -7,5 +7,4 @@
 
 **for runnig this fastapi in your system**
  - you need to have mysql in your system
- - some library and classes
-    - `fastapi` , `sqlalchemy`, `pymysql`
+ 
